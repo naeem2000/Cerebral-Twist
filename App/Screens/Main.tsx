@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
+import {auth, firestore as db} from '../Components/API/firebase';
+import {doc, getDoc} from 'firebase/firestore';
 
 interface Card {
   id: number;
@@ -49,13 +51,14 @@ const Main = ({navigation}: MainProps) => {
   const [uid, setUid] = useState<string>('');
   const [score, setScore] = useState<number>(0);
   const [cards, setCards] = useState<Card[]>([]);
+  const [username, setUsername] = useState('');
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
 
   async function checkLoginStatus() {
     const storedUserCredentials = await AsyncStorage.getItem('userCredentials');
     if (storedUserCredentials) {
       const userCredentials = JSON.parse(storedUserCredentials);
-      const uid = userCredentials.currentUser?.uid;
+      const uid = await userCredentials.currentUser?.uid;
       setUid(uid);
     }
   }
@@ -63,8 +66,19 @@ const Main = ({navigation}: MainProps) => {
   console.log('UID:', uid);
 
   useEffect(() => {
+    const fetchUsername = async () => {
+      if (uid) {
+        const userDocRef = doc(db, 'users', uid); // Replace 'userData' with the actual document ID you're trying to fetch
+        const userDocSnapshot = await getDoc(userDocRef);
+        if (userDocSnapshot.exists()) {
+          const userData = userDocSnapshot.data();
+          setUsername(userData.username);
+        }
+      }
+    };
+    fetchUsername();
     checkLoginStatus();
-  }, []);
+  }, [uid]);
 
   useEffect(() => {
     const shuffledEmojis = shuffle(emojis.concat(emojis));
@@ -153,6 +167,7 @@ const Main = ({navigation}: MainProps) => {
                 <Text style={styles.resetButtonText}>Reset</Text>
               </TouchableOpacity>
             </View>
+            <Text style={{color: 'white'}}>{username}</Text>
             <View style={styles.gameBoard}>
               {cards.map(card => (
                 <TouchableOpacity

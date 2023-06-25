@@ -1,8 +1,20 @@
 import {isPasswordValid, isEmailValid} from '../Components/Validation';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {firestore as db} from '../Components/API/firebase';
 import {useToast} from 'react-native-toast-notifications';
 import {auth} from '../Components/API/firebase';
 import React, {Fragment, useState} from 'react';
+import {
+  query,
+  getDocs,
+  where,
+  collection,
+  deleteDoc,
+  addDoc,
+  getDoc,
+  doc,
+  setDoc,
+} from 'firebase/firestore';
 import Loader from '../Components/Loader';
 import {
   Text,
@@ -15,6 +27,7 @@ import {
 } from 'react-native';
 
 interface User {
+  username: string;
   email: string;
   password: string;
 }
@@ -23,13 +36,17 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const RegisterScreen = ({navigation}: any) => {
-  const [user, setUser] = useState<User>({email: '', password: ''});
+  const [user, setUser] = useState<User>({
+    username: '',
+    email: '',
+    password: '',
+  });
   const [buttonScale] = useState(new Animated.Value(1));
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   async function handleRegister() {
-    if (user.email === '' || user.password === '') {
+    if (user.username === '' || user.email === '' || user.password === '') {
       toast.show('All fields are mandatory!', {
         type: 'danger ',
         style: {
@@ -67,7 +84,19 @@ const RegisterScreen = ({navigation}: any) => {
     }
     try {
       setIsLoading(true);
-      await createUserWithEmailAndPassword(auth, user.email, user.password);
+      const authResult = await createUserWithEmailAndPassword(
+        auth,
+        user.email,
+        user.password,
+      );
+      const {
+        user: {uid},
+      } = authResult;
+      const userDocRef = doc(db, 'users', uid);
+      await setDoc(userDocRef, {
+        username: user.username,
+        email: user.email,
+      });
       setIsLoading(false);
       toast.show('User created successfully', {
         type: 'success',
@@ -88,8 +117,8 @@ const RegisterScreen = ({navigation}: any) => {
         duration: 2500,
         animationType: 'slide-in',
       });
-      toast.hideAll();
       setIsLoading(false);
+      toast.hideAll();
     }
   }
 
@@ -123,6 +152,13 @@ const RegisterScreen = ({navigation}: any) => {
       <View style={styles.loginContainer}>
         <Text style={styles.register}>Register</Text>
         <View style={styles.innerContainer}>
+          <TextInput
+            style={styles.textArea}
+            placeholder="Username"
+            value={user.username}
+            onChangeText={username => setUser({...user, username})}
+            autoCapitalize="none"
+          />
           <TextInput
             style={styles.textArea}
             placeholder="Email"

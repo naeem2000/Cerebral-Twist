@@ -1,16 +1,19 @@
-import {initializeApp} from 'firebase/app';
+import {initializeApp, getApps} from 'firebase/app';
 import {getAuth} from 'firebase/auth';
+import {getFirestore} from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyD1JseEqXUrDgmtsSw1vPs-nr7NPy0LIQI',
-  authDomain: 'minimemorygame.firebaseapp.com',
-  projectId: 'minimemorygame',
-  storageBucket: 'minimemorygame.appspot.com',
-  messagingSenderId: '1037399154296',
-  appId: '1:1037399154296:web:5c864992d1be49f035178d',
-  measurementId: 'G-3W4SDGWL69',
+  apiKey: 'AIzaSyDHswY5ZZZQuqFSKXIUuhJO64KE4i8_wQM',
+  authDomain: 'cerebral-twist.firebaseapp.com',
+  projectId: 'cerebral-twist',
+  storageBucket: 'cerebral-twist.appspot.com',
+  messagingSenderId: '888534795197',
+  appId: '1:888534795197:web:f41aae1ea17fa4fc1f08d4',
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+export const authGlobal = getAuth(app);
+export const firestore = getFirestore(app);
 
 export const auth = getAuth(app);

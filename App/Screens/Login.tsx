@@ -2,7 +2,9 @@ import {isEmailValid, isPasswordValid} from '../Components/Validation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useToast} from 'react-native-toast-notifications';
 import {signInWithEmailAndPassword} from 'firebase/auth';
-import React, {Fragment, useState} from 'react';
+import {getDoc, doc} from 'firebase/firestore';
+import {firestore as db} from '../Components/API/firebase';
+import React, {Fragment, useEffect, useState} from 'react';
 import {auth} from '../Components/API/firebase';
 import Loader from '../Components/Loader';
 import {
@@ -26,6 +28,7 @@ const windowHeight = Dimensions.get('window').height;
 const LoginScreen = ({navigation}: any) => {
   const [user, setUser] = useState<User>({email: '', password: ''});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('');
   const [buttonScale] = useState(new Animated.Value(1));
   const toast = useToast();
 
@@ -139,6 +142,7 @@ const LoginScreen = ({navigation}: any) => {
       useNativeDriver: true,
     }).start();
   };
+
   return (
     <Fragment>
       <View style={styles.loginContainer}>
@@ -171,9 +175,7 @@ const LoginScreen = ({navigation}: any) => {
               <Text style={styles.buttonText}>Login</Text>
             </Animated.View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{width: '45%'}}
-            onPress={() => navigation.navigate('Register')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.smallText}>Not registered?</Text>
           </TouchableOpacity>
         </View>
