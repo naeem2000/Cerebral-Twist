@@ -1,19 +1,22 @@
 import {initializeApp, getApps} from 'firebase/app';
-import {getAuth} from 'firebase/auth';
-import {getFirestore} from 'firebase/firestore';
+import {getAuth, Auth} from 'firebase/auth';
+import {getFirestore, Firestore} from 'firebase/firestore';
+import {config} from 'dotenv';
+
+config();
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDHswY5ZZZQuqFSKXIUuhJO64KE4i8_wQM',
-  authDomain: 'cerebral-twist.firebaseapp.com',
-  projectId: 'cerebral-twist',
-  storageBucket: 'cerebral-twist.appspot.com',
-  messagingSenderId: '888534795197',
-  appId: '1:888534795197:web:f41aae1ea17fa4fc1f08d4',
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const authGlobal = getAuth(app);
-export const firestore = getFirestore(app);
+export const authGlobal: Auth = getAuth(app);
+export const firestore: Firestore = getFirestore(app);
 
-export const auth = getAuth(app);
+export const auth: Auth = getAuth(app);
